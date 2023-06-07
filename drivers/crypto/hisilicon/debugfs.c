@@ -149,7 +149,7 @@ static int qm_sqc_dump(struct hisi_qm *qm, const char *s)
 	if (IS_ERR(sqc))
 		return PTR_ERR(sqc);
 
-	ret = hisi_qm_mb(qm, QM_MB_CMD_SQC, sqc_dma, qp_id, 1);
+	ret = hisi_qm_mb_write(qm, QM_MB_CMD_SQC, sqc_dma, qp_id, 1);
 	if (ret) {
 		down_read(&qm->qps_lock);
 		if (qm->sqc) {
@@ -190,7 +190,7 @@ static int qm_cqc_dump(struct hisi_qm *qm, const char *s)
 	if (IS_ERR(cqc))
 		return PTR_ERR(cqc);
 
-	ret = hisi_qm_mb(qm, QM_MB_CMD_CQC, cqc_dma, qp_id, 1);
+	ret = hisi_qm_mb_write(qm, QM_MB_CMD_CQC, cqc_dma, qp_id, 1);
 	if (ret) {
 		down_read(&qm->qps_lock);
 		if (qm->cqc) {
@@ -227,7 +227,7 @@ static int qm_eqc_aeqc_dump(struct hisi_qm *qm, char *s, size_t size,
 	if (IS_ERR(xeqc))
 		return PTR_ERR(xeqc);
 
-	ret = hisi_qm_mb(qm, cmd, xeqc_dma, 0, 1);
+	ret = hisi_qm_mb_write(qm, cmd, xeqc_dma, 0, 1);
 	if (ret)
 		goto err_free_ctx;
 
