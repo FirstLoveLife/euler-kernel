@@ -435,7 +435,7 @@ static inline int hpre_cluster_core_mask(struct hisi_qm *qm)
 
 struct hisi_qp *hpre_create_qp(u8 type)
 {
-	int node = cpu_to_node(smp_processor_id());
+	int node = cpu_to_node(raw_smp_processor_id());
 	struct hisi_qp *qp = NULL;
 	int ret;
 
