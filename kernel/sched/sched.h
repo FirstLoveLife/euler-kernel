@@ -1681,6 +1681,12 @@ this_rq_lock_irq(struct rq_flags *rf)
 	return rq;
 }
 
+#ifdef CONFIG_SCHED_CLUSTER
+extern void set_sched_cluster(void);
+#else
+static inline void set_sched_cluster(void) { }
+#endif
+
 #ifdef CONFIG_NUMA
 #ifdef CONFIG_SCHED_STEAL
 extern struct static_key_true sched_steal_allow;
@@ -1797,11 +1803,13 @@ static inline struct sched_domain *lowest_flag_domain(int cpu, int flag)
 DECLARE_PER_CPU(struct sched_domain __rcu *, sd_llc);
 DECLARE_PER_CPU(int, sd_llc_size);
 DECLARE_PER_CPU(int, sd_llc_id);
+DECLARE_PER_CPU(int, sd_share_id);
 DECLARE_PER_CPU(struct sched_domain_shared __rcu *, sd_llc_shared);
 DECLARE_PER_CPU(struct sched_domain __rcu *, sd_numa);
 DECLARE_PER_CPU(struct sched_domain __rcu *, sd_asym_packing);
 DECLARE_PER_CPU(struct sched_domain __rcu *, sd_asym_cpucapacity);
 extern struct static_key_false sched_asym_cpucapacity;
+extern struct static_key_false sched_cluster_active;
 
 struct sched_group_capacity {
 	atomic_t		ref;
@@ -1830,7 +1838,7 @@ struct sched_group {
 	struct sched_group_capacity *sgc;
 	int			asym_prefer_cpu;	/* CPU of highest priority in group */
 
-	KABI_RESERVE(1)
+	KABI_USE(1, int flags)
 	KABI_RESERVE(2)
 	/*
 	 * The CPUs this group covers.
@@ -2066,7 +2074,6 @@ static inline int task_on_rq_migrating(struct task_struct *p)
 #define WF_SYNC			0x01		/* Waker goes to sleep after wakeup */
 #define WF_FORK			0x02		/* Child wakeup after fork */
 #define WF_MIGRATED		0x04		/* Internal use, task got migrated */
-#define WF_ON_CPU		0x08		/* Wakee is on_cpu */
 
 /*
  * To aid in avoiding the subversion of "niceness" due to uneven distribution
